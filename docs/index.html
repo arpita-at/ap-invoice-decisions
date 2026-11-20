@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AP Invoice Decisions</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="top"><div class="in">
+  <div class="logo">AP</div>
+  <div>
+    <h1>AP Invoice Decisions</h1>
+    <p class="sub">Invoice in, reasoned decision out</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-run" aria-selected="true">Run</button>
+    <button role="tab" id="tab-dash" aria-selected="false">Dashboard</button>
+    <button role="tab" id="tab-data" aria-selected="false">Vendors &amp; POs</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+
+<section id="view-run">
+  <p class="lede">Drop in a vendor invoice. The process reads the PDF, checks it against the approved
+  vendor master and the open purchase orders, and returns a decision with every step it took to get
+  there. Built for Zamp's AI Solutions Analyst case study, PS-1.</p>
+  <p class="synth"><strong>Synthetic data.</strong> The vendors, purchase orders and sample invoices
+  are invented for this exercise. The files in <code>samples/</code> are real PDFs and are parsed
+  live by pdf.js, not mocked.</p>
+
+  <div class="cols">
+    <div>
+      <div class="card">
+        <header><h2>Input</h2><p class="hint">Any invoice PDF. The four edge cases below each
+        break a specific naive implementation.</p></header>
+        <div class="body">
+          <div class="drop" id="drop" tabindex="0" role="button">
+            <b>Drop an invoice PDF</b><span>or click to choose a file</span>
+            <input type="file" id="file" accept="application/pdf" hidden>
+          </div>
+          <div class="caselist" id="cases"></div>
+          <div class="breaks" id="breaks" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" id="runPanel" hidden>
+        <div class="verdict" id="verdict"></div>
+        <div class="body">
+          <h2>How it got there</h2>
+          <p class="hint">Each stage as it executes. A stage that cannot run says so rather than
+          reporting a pass.</p>
+          <ul class="run" id="run"></ul>
+        </div>
+      </div>
+
+      <div class="card" id="extractPanel" hidden>
+        <header><h2>Read off the document</h2><p class="hint">Straight from the PDF text layer.
+        A field that cannot be read with confidence is left empty rather than guessed.</p></header>
+        <div class="body">
+          <div class="doc" id="extract"></div>
+          <div style="overflow-x:auto;margin-top:12px"><table id="extractLines"></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="idle">
+        <div class="body"><p class="empty">Pick a case on the left, or drop a PDF, to run the process.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="view-dash" hidden>
+  <p class="lede">Every invoice this process has seen, stored in this browser. History is not a log:
+  the duplicate check and the cumulative purchase-order check both read it, so it is state the
+  decisions depend on.</p>
+  <div class="tiles" id="tiles"></div>
+  <div class="bar">
+    <button class="act" id="seed">Run all 5 samples in order</button>
+    <button class="ghost" id="clear">Clear history</button>
+  </div>
+  <div class="card"><div class="body" style="overflow-x:auto"><table id="hist"></table>
+    <p class="empty" id="histEmpty" hidden>No runs yet.</p></div></div>
+</section>
+
+<section id="view-data" hidden>
+  <p class="lede">The procurement side the engine checks against. Seeded for the exercise; in
+  production this is an ERP read, which is why the engine takes it as an argument rather than
+  importing it.</p>
+  <div class="card">
+    <header><h2>Approved vendors</h2><p class="hint">The payee control. An invoice from anyone not
+    on this list stops.</p></header>
+    <div class="body" style="overflow-x:auto"><table id="vendors"></table></div>
+  </div>
+  <div class="card">
+    <header><h2>Open purchase orders</h2><p class="hint">What was agreed, and at what unit price.
+    Tolerance is applied per unit price, not to the invoice total.</p></header>
+    <div class="body" style="overflow-x:auto"><table id="pos"></table></div>
+  </div>
+</section>
+
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

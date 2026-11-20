@@ -1,0 +1,231 @@
+[
+ {
+  "id": "happy",
+  "out": "invoice-happy.pdf",
+  "invoice": {
+   "invoiceNo": "ACM-9001",
+   "invoiceDate": "2026-11-04",
+   "vendorName": "Acme Industries Pvt Ltd",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 185000,
+   "tax": 33300,
+   "total": 218300,
+   "lines": [
+    {
+     "sku": "CMP-100",
+     "description": "Compressor unit, 2HP",
+     "qty": 10,
+     "unitPrice": 18500
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  },
+  "render": {
+   "invoiceNo": "ACM-9001",
+   "invoiceDate": "2026-11-04",
+   "vendorName": "Acme Industries Pvt Ltd",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 185000,
+   "tax": 33300,
+   "total": 218300,
+   "lines": [
+    {
+     "sku": "CMP-100",
+     "description": "Compressor unit, 2HP",
+     "qty": 10,
+     "unitPrice": 18500
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  }
+ },
+ {
+  "id": "dup-format",
+  "out": "invoice-duplicate.pdf",
+  "invoice": {
+   "invoiceNo": "acm 9001",
+   "invoiceDate": "2026-11-06",
+   "vendorName": "ACME INDUSTRIES PRIVATE LIMITED",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 185000,
+   "tax": 33300,
+   "total": 218300,
+   "lines": [
+    {
+     "sku": "CMP-100",
+     "description": "Compressor unit, 2HP",
+     "qty": 10,
+     "unitPrice": 18500
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  },
+  "render": {
+   "invoiceNo": "acm 9001",
+   "invoiceDate": "2026-11-06",
+   "vendorName": "ACME INDUSTRIES PRIVATE LIMITED",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 185000,
+   "tax": 33300,
+   "total": 218300,
+   "lines": [
+    {
+     "sku": "CMP-100",
+     "description": "Compressor unit, 2HP",
+     "qty": 10,
+     "unitPrice": 18500
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  }
+ },
+ {
+  "id": "po-split",
+  "out": "invoice-split.pdf",
+  "invoice": {
+   "invoiceNo": "NOV-5540",
+   "invoiceDate": "2026-11-10",
+   "vendorName": "Nova Components Limited",
+   "poRef": "PO-2026-0455",
+   "currency": "INR",
+   "subtotal": 40300,
+   "tax": 7254,
+   "total": 47554,
+   "lines": [
+    {
+     "sku": "BRG-7",
+     "description": "Bearing assembly",
+     "qty": 130,
+     "unitPrice": 310
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  },
+  "render": {
+   "invoiceNo": "NOV-5540",
+   "invoiceDate": "2026-11-10",
+   "vendorName": "Nova Components Limited",
+   "poRef": "PO-2026-0455",
+   "currency": "INR",
+   "subtotal": 40300,
+   "tax": 7254,
+   "total": 47554,
+   "lines": [
+    {
+     "sku": "BRG-7",
+     "description": "Bearing assembly",
+     "qty": 130,
+     "unitPrice": 310
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  }
+ },
+ {
+  "id": "unit-price",
+  "out": "invoice-unitprice.pdf",
+  "invoice": {
+   "invoiceNo": "ACM-9102",
+   "invoiceDate": "2026-11-12",
+   "vendorName": "Acme Industries Pvt Ltd",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 42000,
+   "tax": 7560,
+   "total": 49560,
+   "lines": [
+    {
+     "sku": "FLT-220",
+     "description": "Inline filter cartridge",
+     "qty": 40,
+     "unitPrice": 1050
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  },
+  "render": {
+   "invoiceNo": "ACM-9102",
+   "invoiceDate": "2026-11-12",
+   "vendorName": "Acme Industries Pvt Ltd",
+   "poRef": "PO-2026-0412",
+   "currency": "INR",
+   "subtotal": 42000,
+   "tax": 7560,
+   "total": 49560,
+   "lines": [
+    {
+     "sku": "FLT-220",
+     "description": "Inline filter cartridge",
+     "qty": 40,
+     "unitPrice": 1050
+    }
+   ],
+   "extraction": {
+    "textLayer": true,
+    "source": "pdf-text"
+   }
+  }
+ },
+ {
+  "id": "scanned",
+  "out": "invoice-scanned.pdf",
+  "invoice": {
+   "invoiceNo": null,
+   "invoiceDate": null,
+   "vendorName": null,
+   "poRef": null,
+   "currency": null,
+   "subtotal": null,
+   "tax": null,
+   "total": null,
+   "lines": [],
+   "extraction": {
+    "textLayer": false,
+    "source": "image-only"
+   }
+  },
+  "render": {
+   "invoiceNo": "ORB-7781",
+   "invoiceDate": "2026-11-08",
+   "vendorName": "Orbit Facilities Services",
+   "poRef": "PO-2026-0499",
+   "currency": "INR",
+   "subtotal": 64000,
+   "tax": 11520,
+   "total": 75520,
+   "lines": [
+    {
+     "sku": "FAC-CLN",
+     "description": "Facility cleaning, November",
+     "qty": 1,
+     "unitPrice": 64000
+    }
+   ]
+  }
+ }
+]
