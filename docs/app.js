@@ -1,10 +1,11 @@
 import { processInvoice, DECISION, POLICY } from "./engine.js";
 import { MASTER } from "./master.js";
+import { normaliseInvoiceNo, normaliseVendor } from "./engine.js";
 import { SAMPLES } from "./samples.js";
 import { pdfToLines, parseInvoice } from "./extract.js";
 
-const PDFJS_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs";
-const WORKER_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs";
+const PDFJS_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs";
+const WORKER_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs";
 const KEY = "ap-invoice-runs-v1";
 
 const $ = s => document.querySelector(s);
@@ -33,7 +34,10 @@ async function pdfjs() {
 async function runInvoice(inv, label) {
   $("#runPanel").hidden = false;
   $("#extractPanel").hidden = false;
+  $("#comparePanel").hidden = true;
+  $("#todo").hidden = true;
   $("#idle").hidden = true;
+  $("#prog").firstElementChild.style.right = "100%";
   const ul = $("#run");
   ul.innerHTML = "";
   $("#verdict").className = "verdict running";
@@ -47,6 +51,7 @@ async function runInvoice(inv, label) {
   // Stages are revealed one at a time so the run is visible rather than a
   // result appearing fully formed. The decision is already computed; this is
   // presentation, and the demo should say so.
+  let step = 0;
   for (const st of result.stages) {
     const li = document.createElement("li");
     li.innerHTML = `<div class="dot RUN">·</div><div class="stage"><b>${esc(st.name)}</b></div>`;
@@ -62,6 +67,8 @@ async function runInvoice(inv, label) {
          <div>${esc(f.message)}</div>
          ${f.detail ? `<div class="d">${esc(f.detail)}</div>` : ""}</div>`).join("")}
     </div>`;
+    step++;
+    $("#prog").firstElementChild.style.right = (100 - (step / result.stages.length) * 100) + "%";
   }
 
   const words = { AUTO_APPROVE: "Approve for payment", HOLD_FOR_REVIEW: "Hold for review",
@@ -77,6 +84,9 @@ async function runInvoice(inv, label) {
     ${result.reasons.length ? `<div class="chips">${result.reasons
         .map(r => `<span class="chip">${esc(r)}</span>`).join("")}</div>` : ""}</div>`;
 
+  renderTodo(result);
+  renderCompare(inv);
+
   const hist = load();
   hist.unshift({
     invoiceNo: inv.invoiceNo, vendorName: inv.vendorName, poRef: inv.poRef,
@@ -86,6 +96,58 @@ async function runInvoice(inv, label) {
   save(hist);
   renderDash();
   return result;
+}
+
+/* Turns the decision into the sentence an AP clerk would act on. */
+function renderTodo(result) {
+  const el = $("#todo");
+  const first = result.findings.find(f => f.severity === "REJECT")
+             || result.findings.find(f => f.severity === "HOLD");
+  let title, msg;
+  if (result.decision === DECISION.APPROVE) {
+    title = "What happens next";
+    msg = "<b>Nothing to do.</b> This invoice can go through to payment. Every check passed and " +
+          "the trail below is the evidence.";
+  } else if (result.decision === DECISION.HOLD) {
+    title = "What you need to do";
+    msg = "<b>Check this one by hand before paying.</b> " + esc(first ? first.message : "") +
+          " Someone has to read the document and confirm the figures.";
+  } else {
+    title = "What you need to do";
+    msg = "<b>Do not pay this.</b> " + esc(first ? first.message : "") +
+          " Send it back to the vendor with that reason.";
+  }
+  el.hidden = false;
+  el.innerHTML = `<div><div class="t">${title}</div><div class="m">${msg}</div></div>`;
+}
+
+/* Billed against agreed, line by line, so the failing number is visible rather
+ * than only described in a finding. */
+function renderCompare(inv) {
+  if (!inv.poRef || !inv.lines || !inv.lines.length) return;
+  const po = MASTER.purchaseOrders.find(p =>
+    normaliseInvoiceNo(p.poNumber) === normaliseInvoiceNo(inv.poRef));
+  if (!po) return;
+  const rows = inv.lines.map(l => {
+    const pl = po.lines.find(x => x.sku === l.sku);
+    if (!pl) return `<tr><td class="l">${esc(l.sku)}</td><td class="l">${esc(l.description || "")}</td>
+      <td>${l.qty}</td><td>${money(l.unitPrice)}</td>
+      <td colspan="3" class="bad-cell">not on ${esc(po.poNumber)}</td></tr>`;
+    const over = l.unitPrice > pl.unitPrice;
+    const diff = pl.unitPrice ? ((l.unitPrice - pl.unitPrice) / pl.unitPrice) * 100 : 0;
+    return `<tr>
+      <td class="l">${esc(l.sku)}</td><td class="l">${esc(l.description || "")}</td>
+      <td>${l.qty}</td>
+      <td class="${over ? "bad-cell" : "ok-cell"}">${money(l.unitPrice)}</td>
+      <td>${pl.qty}</td><td>${money(pl.unitPrice)}</td>
+      <td class="${over ? "bad-cell" : ""}">${diff === 0 ? "same"
+        : (diff > 0 ? "+" : "") + diff.toFixed(1) + "%"}</td></tr>`;
+  }).join("");
+  $("#compare").innerHTML = `<thead><tr>
+    <th class="l">SKU</th><th class="l">Description</th>
+    <th>Billed qty</th><th>Billed price</th>
+    <th>PO qty</th><th>PO price</th><th>Price diff</th></tr></thead><tbody>${rows}</tbody>`;
+  $("#comparePanel").hidden = false;
 }
 
 function renderExtract(inv) {

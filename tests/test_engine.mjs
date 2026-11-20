@@ -95,6 +95,34 @@ const has = (r, code) => r.findings.some(f => f.code === code);
   ok(has(r, "NO_PO_REFERENCE"), "missing PO reference raised");
 }
 
+// 9. The payable total must reconcile to its own components. Without this the
+//    invoice can state any total it likes and still pass every other check.
+{
+  const inv = structuredClone(S("happy").invoice);
+  inv.invoiceNo = "ACM-TOT";
+  inv.total = inv.subtotal + inv.tax + 5000;   // lines and tax fine, total inflated
+  const r = processInvoice(inv, MASTER, []);
+  ok(has(r, "TOTAL_MISMATCH"), "inflated total caught");
+  ok(r.decision !== DECISION.APPROVE, "an unreconciled total is not approved");
+}
+
+// 10. Nothing to reconcile against is a gap, not a pass.
+{
+  const inv = structuredClone(S("happy").invoice);
+  inv.invoiceNo = "ACM-NOLINES";
+  inv.lines = [];
+  const r = processInvoice(inv, MASTER, []);
+  ok(has(r, "NO_LINE_ITEMS"), "missing line items raised");
+  ok(r.decision !== DECISION.APPROVE, "no silent pass when there is nothing to check");
+}
+{
+  const inv = structuredClone(S("happy").invoice);
+  inv.invoiceNo = "ACM-NOTAX";
+  inv.tax = null;
+  const r = processInvoice(inv, MASTER, []);
+  ok(has(r, "INCOMPLETE_TOTALS"), "unreadable tax raised");
+}
+
 // 9. Every finding is explainable: no decision without a stated reason.
 {
   for (const s of SAMPLES) {

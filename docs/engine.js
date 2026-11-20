@@ -105,19 +105,48 @@ function ruleDuplicate(inv, master, history) {
 }
 
 function ruleArithmetic(inv) {
-  if (!inv.lines || !inv.lines.length) return [];
-  const lineSum = money(inv.lines.reduce((a, l) => a + l.qty * l.unitPrice, 0));
-  const expectedTax = money(lineSum * POLICY.taxRateExpected / 100);
   const out = [];
   const stated = inv.subtotal != null ? money(inv.subtotal) : null;
+  const tax = inv.tax != null ? money(inv.tax) : null;
+  const total = inv.total != null ? money(inv.total) : null;
+
+  // The payable figure is reconciled first and on its own terms. An earlier
+  // version only checked the lines against the subtotal, which left the
+  // invoice free to state any total it liked and still pass.
+  if (total != null && stated != null && tax != null) {
+    const composed = money(stated + tax);
+    if (Math.abs(total - composed) > POLICY.totalRoundingToleranceAbs) {
+      out.push(finding("HOLD", "TOTAL_MISMATCH",
+        `Total of ${total} does not equal subtotal ${stated} plus tax ${tax} (${composed}).`,
+        "The payable figure is the one that gets paid, so it has to reconcile to its own components."));
+    }
+  }
+
+  // Nothing to reconcile against is a gap in what could be read, not a pass.
+  // Staying silent here would let a document through on the strength of checks
+  // that never ran.
+  if (!inv.lines || !inv.lines.length) {
+    out.push(finding("HOLD", "NO_LINE_ITEMS",
+      "No line items could be read, so the totals cannot be reconciled against anything.",
+      "A human has to confirm the figures against the document."));
+    return out;
+  }
+  if (stated == null || tax == null || total == null) {
+    out.push(finding("HOLD", "INCOMPLETE_TOTALS",
+      "Subtotal, tax or total could not be read, so the arithmetic cannot be checked.", null));
+  }
+
+  const lineSum = money(inv.lines.reduce((a, l) => a + l.qty * l.unitPrice, 0));
+  const expectedTax = money(lineSum * POLICY.taxRateExpected / 100);
+
   if (stated != null && Math.abs(stated - lineSum) > POLICY.totalRoundingToleranceAbs) {
     out.push(finding("HOLD", "SUBTOTAL_MISMATCH",
       `Line items sum to ${lineSum}, but the invoice states a subtotal of ${stated}.`,
       "The document disagrees with itself, so neither figure can be relied on."));
   }
-  if (inv.tax != null && Math.abs(money(inv.tax) - expectedTax) > POLICY.totalRoundingToleranceAbs) {
+  if (tax != null && Math.abs(tax - expectedTax) > POLICY.totalRoundingToleranceAbs) {
     out.push(finding("HOLD", "TAX_MISMATCH",
-      `Tax of ${money(inv.tax)} does not match ${POLICY.taxRateExpected}% of ${lineSum} (${expectedTax}).`,
+      `Tax of ${tax} does not match ${POLICY.taxRateExpected}% of ${lineSum} (${expectedTax}).`,
       "Either the rate differs or the taxable base does. Worth a human reading the document."));
   }
   return out;

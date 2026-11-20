@@ -161,3 +161,20 @@ button.ghost{background:var(--panel);border:1px solid var(--line2);color:var(--i
   padding:8px 14px;font:inherit;font-size:13.2px;cursor:pointer}
 button.ghost:hover{border-color:var(--accent)}
 .empty{color:var(--faint);font-size:13px;padding:18px 0;text-align:center}
+
+/* progress bar across the five stages */
+.prog{height:3px;background:var(--line);position:relative;overflow:hidden}
+.prog i{position:absolute;inset:0 100% 0 0;background:var(--accent);transition:right .3s ease}
+
+/* plain-language next action, for someone who does not read rule codes */
+.todo{display:flex;gap:11px;align-items:flex-start;background:var(--sunk);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:9px;padding:11px 13px;margin:0 0 16px}
+.todo .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);
+  margin-bottom:2px}
+.todo .m{font-size:13.4px;line-height:1.5}
+.todo b{font-weight:650}
+
+/* invoice vs PO comparison */
+td.bad-cell{background:var(--badbg);color:var(--bad);font-weight:650}
+td.ok-cell{color:var(--ok)}
+.delta{font-size:11.5px;color:var(--muted)}

@@ -17,7 +17,10 @@ const num = s => {
  * Reading items in raw order scrambles two-column rows. */
 export async function pdfToLines(file, pdfjsLib) {
   const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  // isEvalSupported:false closes CVE-2024-4367, an XSS through a crafted PDF.
+  // This process exists to open documents sent in by outsiders, so that is
+  // the actual threat model, not a theoretical one.
+  const pdf = await pdfjsLib.getDocument({ data: buf, isEvalSupported: false }).promise;
   const lines = [];
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);

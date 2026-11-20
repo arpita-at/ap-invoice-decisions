@@ -51,12 +51,20 @@
     <div>
       <div class="card" id="runPanel" hidden>
         <div class="verdict" id="verdict"></div>
+        <div class="prog" id="prog"><i></i></div>
         <div class="body">
+          <div class="todo" id="todo" hidden></div>
           <h2>How it got there</h2>
           <p class="hint">Each stage as it executes. A stage that cannot run says so rather than
           reporting a pass.</p>
           <ul class="run" id="run"></ul>
         </div>
+      </div>
+
+      <div class="card" id="comparePanel" hidden>
+        <header><h2>Invoice against the purchase order</h2><p class="hint">What was billed next to
+        what was agreed. Red is the line that failed.</p></header>
+        <div class="body" style="overflow-x:auto"><table id="compare"></table></div>
       </div>
 
       <div class="card" id="extractPanel" hidden>
